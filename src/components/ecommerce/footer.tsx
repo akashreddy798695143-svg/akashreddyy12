@@ -23,31 +23,36 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { useNavigationStore } from '@/store/navigation-store'
+import { useNavigationStore, type InfoPage } from '@/store/navigation-store'
 
-const quickLinks = [
-  { label: 'About Us', action: 'about' },
-  { label: 'Contact Us', action: 'contact' },
-  { label: 'Careers', action: 'careers' },
-  { label: 'Blog', action: 'blog' },
-  { label: 'Press', action: 'press' },
+const quickLinks: { label: string; page: InfoPage }[] = [
+  { label: 'About Us', page: 'about' },
+  { label: 'Contact Us', page: 'contact' },
+  { label: 'Careers', page: 'careers' },
+  { label: 'Blog', page: 'blog' },
+  { label: 'Press', page: 'press' },
 ]
 
-const customerService = [
-  { label: 'Help Center', action: 'help' },
-  { label: 'Returns & Refunds', action: 'returns' },
-  { label: 'Shipping Info', action: 'shipping' },
-  { label: 'FAQ', action: 'faq' },
-  { label: 'Track Order', action: 'track' },
+const customerService: { label: string; page: InfoPage | 'track' }[] = [
+  { label: 'Help Center', page: 'help' },
+  { label: 'Returns & Refunds', page: 'returns' },
+  { label: 'Shipping Info', page: 'shipping' },
+  { label: 'FAQ', page: 'faq' },
+  { label: 'Track Order', page: 'track' },
 ]
 
-const policies = [
-  { label: 'Privacy Policy', action: 'privacy' },
-  { label: 'Terms of Service', action: 'terms' },
-  { label: 'Refund Policy', action: 'refund-policy' },
-  { label: 'Sitemap', action: 'sitemap' },
-  { label: 'Cookie Policy', action: 'cookies' },
+const policies: { label: string; page: InfoPage }[] = [
+  { label: 'Privacy Policy', page: 'privacy' },
+  { label: 'Terms of Service', page: 'terms' },
+  { label: 'Refund Policy', page: 'refund-policy' },
+  { label: 'Sitemap', page: 'sitemap' },
+  { label: 'Cookie Policy', page: 'cookies' },
 ]
+
+const COMPANY_EMAIL = 'akashreddy798695143@gmail.com'
+const COMPANY_PHONE = '+91 8790401013'
+const COMPANY_PHONE_RAW = '8790401013'
+const COMPANY_LOCATION = 'Tirupati, Chittoor Dist, Andhra Pradesh, India'
 
 const socialLinks = [
   { icon: Facebook, label: 'Facebook', href: '#' },
@@ -74,6 +79,7 @@ const features = [
 
 export function Footer() {
   const navigate = useNavigationStore((s) => s.navigate)
+  const navigateToInfo = useNavigationStore((s) => s.navigateToInfo)
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
 
@@ -177,14 +183,18 @@ export function Footer() {
               Your one-stop destination for premium products from trusted sellers. Discover the best
               deals, explore trending items, and enjoy a seamless shopping experience.
             </p>
-            <div className="flex items-center gap-3 mb-5">
+            <div className="flex flex-col gap-2 mb-5">
+              <a href={`mailto:${COMPANY_EMAIL}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors">
+                <Mail className="size-3.5" />
+                <span className="break-all">{COMPANY_EMAIL}</span>
+              </a>
+              <a href={`tel:${COMPANY_PHONE_RAW}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors">
+                <Phone className="size-3.5" />
+                <span>{COMPANY_PHONE}</span>
+              </a>
               <div className="flex items-center gap-1.5 text-xs text-zinc-500">
                 <MapPin className="size-3.5" />
-                <span>New York, USA</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-                <Phone className="size-3.5" />
-                <span>1-800-SHOPZONE</span>
+                <span>{COMPANY_LOCATION}</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -210,9 +220,9 @@ export function Footer() {
             </h3>
             <ul className="space-y-2.5">
               {quickLinks.map((link) => (
-                <li key={link.action}>
+                <li key={link.page}>
                   <button
-                    onClick={() => navigate('home')}
+                    onClick={() => navigateToInfo(link.page)}
                     className="text-sm text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5 group"
                   >
                     <ArrowRight className="size-3 text-zinc-600 group-hover:text-emerald-400 transition-colors" />
@@ -230,13 +240,13 @@ export function Footer() {
             </h3>
             <ul className="space-y-2.5">
               {customerService.map((link) => (
-                <li key={link.action}>
+                <li key={link.page}>
                   <button
                     onClick={() => {
-                      if (link.action === 'track') {
+                      if (link.page === 'track') {
                         navigate('user-dashboard', { tab: 'orders' })
                       } else {
-                        navigate('home')
+                        navigateToInfo(link.page)
                       }
                     }}
                     className="text-sm text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5 group"
@@ -256,9 +266,9 @@ export function Footer() {
             </h3>
             <ul className="space-y-2.5">
               {policies.map((link) => (
-                <li key={link.action}>
+                <li key={link.page}>
                   <button
-                    onClick={() => navigate('home')}
+                    onClick={() => navigateToInfo(link.page)}
                     className="text-sm text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5 group"
                   >
                     <ArrowRight className="size-3 text-zinc-600 group-hover:text-emerald-400 transition-colors" />

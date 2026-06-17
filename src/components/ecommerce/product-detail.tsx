@@ -32,6 +32,7 @@ import {
 import { useNavigationStore } from '@/store/navigation-store'
 import { useCartStore } from '@/store/cart-store'
 import { useWishlistStore } from '@/store/wishlist-store'
+import { useRequireAuth } from '@/hooks/use-require-auth'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -300,6 +301,7 @@ export default function ProductDetail() {
   const { selectedProductId, navigate } = useNavigationStore()
   const addItem = useCartStore((s) => s.addItem)
   const { addItem: addWishlist, removeItem: removeWishlist, isInWishlist } = useWishlistStore()
+  const requireAuth = useRequireAuth()
 
   const product = useMemo(
     () => (selectedProductId ? getProductById(selectedProductId) : undefined),
@@ -367,6 +369,7 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     if (!product) return
+    if (!requireAuth('add items to your cart')) return
     addItem({
       id: `${product.id}-${product.colors[selectedColor]}-${product.sizes[selectedSize]}-${Date.now()}`,
       productId: product.id,
@@ -383,12 +386,14 @@ export default function ProductDetail() {
   }
 
   const handleBuyNow = () => {
+    if (!requireAuth('place an order')) return
     handleAddToCart()
     navigate('cart')
   }
 
   const handleWishlist = () => {
     if (!product) return
+    if (!requireAuth('save items to your wishlist')) return
     if (wishlisted) {
       removeWishlist(product.id)
     } else {

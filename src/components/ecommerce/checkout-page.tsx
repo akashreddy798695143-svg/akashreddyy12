@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '@/store/cart-store'
 import { useNavigationStore } from '@/store/navigation-store'
 import { useAuthStore } from '@/store/auth-store'
+import { useToast } from '@/hooks/use-toast'
 import { formatPrice } from '@/lib/mock-data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -106,6 +107,7 @@ export function CheckoutPage() {
     useCartStore()
   const navigate = useNavigationStore((s) => s.navigate)
   const auth = useAuthStore()
+  const { toast } = useToast()
 
   const cartItems = items.filter((i) => !i.saveForLater)
   const subtotal = getSubtotal()
@@ -143,6 +145,18 @@ export function CheckoutPage() {
       navigate('cart')
     }
   }, [cartItems.length, currentStep, navigate])
+
+  // Redirect to auth if not signed in (unless on confirmation)
+  useEffect(() => {
+    if (!auth.isAuthenticated && currentStep !== 'confirmation') {
+      toast({
+        title: 'Please sign in to continue',
+        description: 'You need to be signed in to place your order.',
+        variant: 'destructive',
+      })
+      navigate('auth')
+    }
+  }, [auth.isAuthenticated, currentStep, navigate, toast])
 
   const stepIndex = steps.findIndex((s) => s.key === currentStep)
 

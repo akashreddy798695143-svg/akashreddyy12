@@ -1,15 +1,32 @@
 import { create } from 'zustand'
 
-export type ViewMode = 
-  | 'home' 
-  | 'products' 
-  | 'product-detail' 
-  | 'cart' 
-  | 'checkout' 
-  | 'auth' 
-  | 'user-dashboard' 
-  | 'seller-panel' 
+export type ViewMode =
+  | 'home'
+  | 'products'
+  | 'product-detail'
+  | 'cart'
+  | 'checkout'
+  | 'auth'
+  | 'user-dashboard'
+  | 'seller-panel'
   | 'admin-panel'
+  | 'info'
+
+export type InfoPage =
+  | 'about'
+  | 'contact'
+  | 'careers'
+  | 'blog'
+  | 'press'
+  | 'help'
+  | 'returns'
+  | 'shipping'
+  | 'faq'
+  | 'privacy'
+  | 'terms'
+  | 'refund-policy'
+  | 'sitemap'
+  | 'cookies'
 
 interface NavigationState {
   currentView: ViewMode
@@ -20,7 +37,9 @@ interface NavigationState {
   sellerTab: string
   adminTab: string
   authMode: 'login' | 'register' | 'otp' | 'forgot-password'
+  infoPage: InfoPage
   navigate: (view: ViewMode, options?: { productId?: string; category?: string; query?: string; tab?: string }) => void
+  navigateToInfo: (page: InfoPage) => void
   setSearchQuery: (query: string) => void
   setAuthMode: (mode: 'login' | 'register' | 'otp' | 'forgot-password') => void
   setDashboardTab: (tab: string) => void
@@ -37,6 +56,7 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   sellerTab: 'dashboard',
   adminTab: 'dashboard',
   authMode: 'login',
+  infoPage: 'about',
   navigate: (view, options) => set({
     currentView: view,
     selectedProductId: options?.productId ?? null,
@@ -46,6 +66,7 @@ export const useNavigationStore = create<NavigationState>((set) => ({
     sellerTab: options?.tab ?? 'dashboard',
     adminTab: options?.tab ?? 'dashboard',
   }),
+  navigateToInfo: (page) => set({ currentView: 'info', infoPage: page }),
   setSearchQuery: (query) => set({ searchQuery: query }),
   setAuthMode: (mode) => set({ authMode: mode }),
   setDashboardTab: (tab) => set({ dashboardTab: tab }),

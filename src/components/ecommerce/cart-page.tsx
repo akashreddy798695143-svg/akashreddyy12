@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '@/store/cart-store'
 import { useNavigationStore } from '@/store/navigation-store'
+import { useRequireAuth } from '@/hooks/use-require-auth'
 import { formatPrice, coupons } from '@/lib/mock-data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -40,6 +41,7 @@ export function CartPage() {
   } = useCartStore()
 
   const navigate = useNavigationStore((s) => s.navigate)
+  const requireAuth = useRequireAuth()
 
   const [couponInput, setCouponInput] = useState('')
   const [couponError, setCouponError] = useState('')
@@ -353,7 +355,10 @@ export function CartPage() {
                 <Button
                   className="w-full h-12 text-base font-semibold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl shadow-lg shadow-orange-500/20 transition-all duration-200 hover:shadow-xl hover:shadow-orange-500/30"
                   disabled={cartItems.length === 0}
-                  onClick={() => navigate('checkout')}
+                  onClick={() => {
+                    if (!requireAuth('place your order')) return
+                    navigate('checkout')
+                  }}
                 >
                   Place Order
                   <ChevronRight className="w-4 h-4 ml-1" />

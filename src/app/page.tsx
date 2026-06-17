@@ -14,6 +14,7 @@ import { AuthPage } from '@/components/ecommerce/auth-page'
 import UserDashboard from '@/components/ecommerce/user-dashboard'
 import SellerPanel from '@/components/ecommerce/seller-panel'
 import AdminPanel from '@/components/ecommerce/admin-panel'
+import InfoPages from '@/components/ecommerce/info-pages'
 import { AIChatbot } from '@/components/ecommerce/ai-chatbot'
 
 function ViewRenderer() {
@@ -29,6 +30,7 @@ function ViewRenderer() {
     'user-dashboard': <UserDashboard />,
     'seller-panel': <SellerPanel />,
     'admin-panel': <AdminPanel />,
+    info: <InfoPages />,
   }
 
   return (
