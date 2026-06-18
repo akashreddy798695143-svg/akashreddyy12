@@ -91,6 +91,26 @@ export function Footer() {
     }
   }
 
+  // Smoothly scroll back to the top of the page the instant a footer link is
+  // clicked. The top-level <Home> component also scrolls on navigation, but
+  // kicking it off here makes the transition feel immediate instead of making
+  // the user wait at the bottom while the new page renders above.
+  const scrollToTop = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const handleInfoNav = (page: Parameters<typeof navigateToInfo>[0]) => {
+    navigateToInfo(page)
+    scrollToTop()
+  }
+
+  const handleTrackOrder = () => {
+    navigate('user-dashboard', { tab: 'orders' })
+    scrollToTop()
+  }
+
   return (
     <footer className="bg-zinc-900 dark:bg-zinc-950 text-zinc-300">
       {/* Feature Bar */}
@@ -222,7 +242,7 @@ export function Footer() {
               {quickLinks.map((link) => (
                 <li key={link.page}>
                   <button
-                    onClick={() => navigateToInfo(link.page)}
+                    onClick={() => handleInfoNav(link.page)}
                     className="text-sm text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5 group"
                   >
                     <ArrowRight className="size-3 text-zinc-600 group-hover:text-emerald-400 transition-colors" />
@@ -244,9 +264,9 @@ export function Footer() {
                   <button
                     onClick={() => {
                       if (link.page === 'track') {
-                        navigate('user-dashboard', { tab: 'orders' })
+                        handleTrackOrder()
                       } else {
-                        navigateToInfo(link.page)
+                        handleInfoNav(link.page)
                       }
                     }}
                     className="text-sm text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5 group"
@@ -268,7 +288,7 @@ export function Footer() {
               {policies.map((link) => (
                 <li key={link.page}>
                   <button
-                    onClick={() => navigateToInfo(link.page)}
+                    onClick={() => handleInfoNav(link.page)}
                     className="text-sm text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5 group"
                   >
                     <ArrowRight className="size-3 text-zinc-600 group-hover:text-emerald-400 transition-colors" />

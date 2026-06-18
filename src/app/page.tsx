@@ -18,7 +18,7 @@ import InfoPages from '@/components/ecommerce/info-pages'
 import { AIChatbot } from '@/components/ecommerce/ai-chatbot'
 
 function ViewRenderer() {
-  const { currentView } = useNavigationStore()
+  const { currentView, infoPage, selectedProductId, dashboardTab, sellerTab, adminTab } = useNavigationStore()
 
   const viewComponents: Record<string, React.ReactNode> = {
     home: <Homepage />,
@@ -33,10 +33,27 @@ function ViewRenderer() {
     info: <InfoPages />,
   }
 
+  // Build a unique key so that navigating between info pages (or products,
+  // dashboard tabs, etc.) re-triggers the transition animation even when the
+  // top-level `currentView` stays the same. This is what makes footer links
+  // feel like a real "navigation" instead of a silent scroll.
+  const viewKey =
+    currentView === 'info'
+      ? `info-${infoPage}`
+      : currentView === 'product-detail'
+        ? `product-${selectedProductId}`
+        : currentView === 'user-dashboard'
+          ? `dash-${dashboardTab}`
+          : currentView === 'seller-panel'
+            ? `seller-${sellerTab}`
+            : currentView === 'admin-panel'
+              ? `admin-${adminTab}`
+              : currentView
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={currentView}
+        key={viewKey}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
@@ -50,13 +67,17 @@ function ViewRenderer() {
 }
 
 export default function Home() {
-  const { currentView } = useNavigationStore()
-  
+  const { currentView, infoPage, selectedProductId, dashboardTab, sellerTab, adminTab } = useNavigationStore()
+
   const isDashboard = ['user-dashboard', 'seller-panel', 'admin-panel'].includes(currentView)
 
+  // Scroll to top smoothly whenever the user navigates — including when only
+  // the info page changes (e.g. clicking a different footer link while already
+  // on an info page). Previously the effect only depended on `currentView`, so
+  // footer clicks kept the viewport stuck at the bottom of the page.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [currentView])
+  }, [currentView, infoPage, selectedProductId, dashboardTab, sellerTab, adminTab])
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-950">
