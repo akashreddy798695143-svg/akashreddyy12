@@ -202,3 +202,4 @@ The seed endpoint creates 25 categories, 25 brands, 10 sellers, 50+ products, sa
 ## 📄 License
 
 MIT — free to use, modify, and distribute.
+# akashreddyy12
