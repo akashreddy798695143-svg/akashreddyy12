@@ -401,7 +401,7 @@ model Chat {
 model ChatMessage {
   id         String   @id @default(cuid())
   chatId     String
-  senderId   String
+  senderId   String?
   senderType String
   message    String
   isRead     Boolean  @default(false)

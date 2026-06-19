@@ -9,7 +9,7 @@ async function main() {
   const results: any[] = [];
   const csvFilePath = path.join(process.cwd(), 'prisma', 'amazon_copy.csv');
 
-  console.log("--- డేటా సీడింగ్ ప్రక్రియ మొదలైంది ---");
+  console.log("--- 🚀 సీడింగ్ ప్రక్రియ మొదలైంది ---");
 
   // 1. CSV డేటాను చదవడం
   await new Promise((resolve, reject) => {
@@ -22,60 +22,66 @@ async function main() {
 
   const seller = await prisma.seller.findFirst();
   if (!seller) {
-    console.error("ఎర్రర్: డేటాబేస్ లో Seller దొరకలేదు.");
+    console.error("❌ ఎర్రర్: డేటాబేస్ లో Seller దొరకలేదు.");
     return;
   }
 
   // 2. డేటాను అప్‌సెర్ట్ (Upsert) చేయడం
   let successCount = 0;
-  for (const p of results) {
-    if (!p.product_name) continue;
+  let errorCount = 0;
 
-    // కేటగిరీ మ్యాపింగ్: CSV లోని కేటగిరీని బట్టి డేటాబేస్ నుండి వెతకడం
-    let category = await prisma.category.findFirst({
-      where: { name: p.category } 
-    });
+  for (const [index, p] of results.entries()) {
+    if (!p.product_name || !p.category) continue;
 
-    // కేటగిరీ లేకపోతే కొత్తది క్రియేట్ చేయడం
+    const createSlug = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50);
+    const categoryName = p.category || "General";
+    const categorySlug = createSlug(categoryName);
+
+    // కేటగిరీ మ్యాపింగ్
+    let category = await prisma.category.findFirst({ where: { slug: categorySlug } });
     if (!category) {
-      category = await prisma.category.create({
-        data: { name: p.category || "General" }
-      });
+      category = await prisma.category.create({ data: { name: categoryName, slug: categorySlug } });
     }
 
-    const productSlug = p.product_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50);
+    const productSlug = createSlug(p.product_name);
 
     try {
       await prisma.product.upsert({
         where: { slug: productSlug },
-        update: {
-          name: p.product_name,
-          basePrice: parseFloat(p.discounted_price) || 100,
-        },
+        update: { name: p.product_name, basePrice: parseFloat(p.discounted_price) || 100 },
         create: {
           name: p.product_name,
           slug: productSlug,
           description: p.product_name,
           basePrice: parseFloat(p.discounted_price) || 100,
           stock: 50,
-          categoryId: category.id, // డైనమిక్ కేటగిరీ ID
+          categoryId: category.id,
           sellerId: seller.id,
           images: JSON.stringify([`https://picsum.photos/seed/${productSlug}/400/400`])
         },
       });
       successCount++;
-      if (successCount % 50 === 0) console.log(`ప్రస్తుతం ${successCount} ప్రొడక్ట్స్ ప్రాసెస్ అయ్యాయి...`);
+      // ప్రతి 10 ప్రొడక్ట్స్ కి ఒకసారి స్టేటస్ అప్‌డేట్
+      if (successCount % 10 === 0) {
+        console.log(`✅ ఇప్పటివరకు ${successCount} ప్రొడక్ట్స్ విజయవంతంగా యాడ్ అయ్యాయి...`);
+      }
     } catch (error) {
-      console.error(`ఎర్రర్: ${p.product_name} యాడ్ అవ్వలేదు.`);
+      errorCount++;
+      console.error(`❌ ఎర్రర్: ${p.product_name} యాడ్ అవ్వలేదు.`);
     }
   }
 
-  console.log(`--- సక్సెస్! మొత్తం ${successCount} ప్రొడక్ట్స్ వాటి కేటగిరీలతో యాడ్ అయ్యాయి ---`);
+  console.log(`
+--- 🎉 సీడింగ్ పూర్తయింది! ---
+మొత్తం చదివిన రోస్: ${results.length}
+విజయవంతంగా యాడ్ అయినవి: ${successCount}
+ఫెయిల్ అయినవి: ${errorCount}
+----------------------------`);
 }
 
 main()
   .catch((e) => {
-    console.error("క్రికెటికల్ ఎర్రర్:", e);
+    console.error("🔥 క్రికెటికల్ ఎర్రర్:", e);
     process.exit(1);
   })
   .finally(async () => {
